@@ -1,9 +1,8 @@
 /**********************************************/
 /**********************************************/
-/******** PROGETTO: ChartBool - main.css *********/
+/******** PROGETTO: ChartBool - main.js *******/
 /**********************************************/
 /**********************************************/
-
 
 $(document).ready(function () {
 
@@ -267,6 +266,10 @@ $(document).ready(function () {
   var salesmanWithPercentage = getEarningsPercentageFor(salesmans, totalEarnings);
   console.log(salesmanWithPercentage);
 
+  //creazione charts
+
+
+
   /**********************************/
   /*************FUNZIONI*************/
   /**********************************/
@@ -283,38 +286,29 @@ $(document).ready(function () {
   // vendite totali della nostra azienda per mese
 
   function getEarningsPerMonthFrom(sales) {
-
+    //prepariamo un array di oggetti mesi
     var months = [
-      { nome: 'Gennaio', nr: '01', amount: 0 },
-      { nome: 'Febbraio', nr: '02', amount: 0 },
-      { nome: 'Gennaio', nr: '03', amount: 0 },
-      { nome: 'Gennaio', nr: '04', amount: 0 },
-      { nome: 'Gennaio', nr: '05', amount: 0 },
-      { nome: 'Gennaio', nr: '06', amount: 0 },
-      { nome: 'Gennaio', nr: '07', amount: 0 },
-      { nome: 'Gennaio', nr: '08', amount: 0 },
-      { nome: 'Gennaio', nr: '09', amount: 0 },
-      { nome: 'Gennaio', nr: '10', amount: 0 },
-      { nome: 'Gennaio', nr: '11', amount: 0 },
-      { nome: 'Gennaio', nr: '12', amount: 0 }
+      { nome: 'Gennaio', nr: '01', earnings: 0 },
+      { nome: 'Febbraio', nr: '02', earnings: 0 },
+      { nome: 'Marzo', nr: '03', earnings: 0 },
+      { nome: 'Aprile', nr: '04', earnings: 0 },
+      { nome: 'Maggio', nr: '05', earnings: 0 },
+      { nome: 'Giugno', nr: '06', earnings: 0 },
+      { nome: 'Luglio', nr: '07', earnings: 0 },
+      { nome: 'Agosto', nr: '08', earnings: 0 },
+      { nome: 'Settembre', nr: '09', earnings: 0 },
+      { nome: 'Ottobre', nr: '10', earnings: 0 },
+      { nome: 'Novembre', nr: '11', earnings: 0 },
+      { nome: 'Dicembre', nr: '12', earnings: 0 }
     ];
 
-    var earningsPerMonth = [];
-    //Per ogni mese
-    for (var index = 0; index < months.length; index++) {
-      //Genero il guadagno mensile
-      var singleMonthEarning = sales.filter(function (sale) {
-        //ottenendo un array delle vendite effettuate in quel mese
-        return (sale.date.split('/'))[1] === months[index].nr;
-      }).reduce(function (salesTotal, sale) {
-          //e sommando gli amount
-          salesTotal += sale.amount;
-          return salesTotal;
-      }, 0);
-
-      earningsPerMonth.push(singleMonthEarning);
-    }
-    return earningsPerMonth;
+    //sarà l'accumulatore di reduce
+    return sales.reduce(function (months, sale) {
+      var monthForThisSale = (sale.date.split('/'))[1] + '';
+      var monthIndex = getIndexOf(monthForThisSale, 'nr',months);
+      months[monthIndex].earnings += sale.amount;
+      return months;
+    }, months);
   }
 
   // il contributo di ogni venditore per l’anno 2017.
