@@ -4,17 +4,19 @@
 /**********************************************/
 /**********************************************/
 
-/*****************************/
-/**********PROGRAMMA**********/
-/*****************************/
 
 $(document).ready(function () {
+
+  /*****************************/
+  /**********PROGRAMMA**********/
+  /*****************************/
 
   console.log('Hello from ChartBool app');
 
   var baseUrl = 'http://157.230.17.132:4016/sales';
 
-  var fakeInput = [
+  //Predispongo dei dummy data per test del programma
+  var dummySales = [
     {
         "id": 1,
         "salesman": "Marco",
@@ -248,39 +250,129 @@ $(document).ready(function () {
         "amount": 4900,
         "date": "12/12/2017",
         "id": 39
-    },
-    {
-        "text": "Test2",
-        "id": 40
     }
 ];
 
-  
+  //Test controllo funzioni
+
+  var totalEarnings = getTotalEarningsFrom(dummySales);
+  console.log(totalEarnings);
+
+  var earningsPerMonth = getEarningsPerMonthFrom(dummySales);
+  console.log(earningsPerMonth);
+
+  var salesmans = getEarningsPerSellerFrom(dummySales);
+  console.log(salesmans);
+
+  var salesmanWithPercentage = getEarningsPercentageFor(salesmans, totalEarnings);
+  console.log(salesmanWithPercentage);
+
+  /**********************************/
+  /*************FUNZIONI*************/
+  /**********************************/
+
+  // vendite totali della nostra azienda
+
+  function getTotalEarningsFrom(sales) {
+    return sales.reduce(function(totalAmount, sale) {
+        totalAmount += sale.amount;
+        return totalAmount;
+    },0);
+  }
+
+  // vendite totali della nostra azienda per mese
+
+  function getEarningsPerMonthFrom(sales) {
+
+    var months = [
+      { nome: 'Gennaio', nr: '01', amount: 0 },
+      { nome: 'Febbraio', nr: '02', amount: 0 },
+      { nome: 'Gennaio', nr: '03', amount: 0 },
+      { nome: 'Gennaio', nr: '04', amount: 0 },
+      { nome: 'Gennaio', nr: '05', amount: 0 },
+      { nome: 'Gennaio', nr: '06', amount: 0 },
+      { nome: 'Gennaio', nr: '07', amount: 0 },
+      { nome: 'Gennaio', nr: '08', amount: 0 },
+      { nome: 'Gennaio', nr: '09', amount: 0 },
+      { nome: 'Gennaio', nr: '10', amount: 0 },
+      { nome: 'Gennaio', nr: '11', amount: 0 },
+      { nome: 'Gennaio', nr: '12', amount: 0 }
+    ];
+
+    var earningsPerMonth = [];
+    //Per ogni mese
+    for (var index = 0; index < months.length; index++) {
+      //Genero il guadagno mensile
+      var singleMonthEarning = sales.filter(function (sale) {
+        //ottenendo un array delle vendite effettuate in quel mese
+        return (sale.date.split('/'))[1] === months[index].nr;
+      }).reduce(function (salesTotal, sale) {
+          //e sommando gli amount
+          salesTotal += sale.amount;
+          return salesTotal;
+      }, 0);
+
+      earningsPerMonth.push(singleMonthEarning);
+    }
+    return earningsPerMonth;
+  }
+
+  // il contributo di ogni venditore per l’anno 2017.
+  // Il valore dovrà essere la percentuale di vendite
+  // effettuate da quel venditore (fatturato_del venditore / fatturato_totale)
+
+  function getEarningsPercentageFor(sellersArray, totalEarnings) {
+
+    var salesmansCopy = [];
+
+    sellersArray.forEach(function (seller, sellerIndex, sellers) {
+
+      var percentage = parseInt((seller.earnings / totalEarnings) * 100);
+      salesmansCopy.push({name: seller.name, earnings: seller.earnings, percentage: percentage }) ;
+    });
+
+    return salesmansCopy;
+  }
+
+  function getEarningsPerSellerFrom(sales) {
+    //ritorno il risultato di...
+    return sales.reduce(function (salesmans, sale) {
+      //per ogni vendita
+      //se abbiamo un venditore nell'arrayRisultato 'salesmans'
+      //otterremo l'indice altrimenti undefined
+      var salesmanIndex = getIndexOf(sale.salesman,'name',salesmans);
+
+      //Caso A: venditore NON TROVATO in array risultato 'salesmans'
+      if (salesmanIndex === undefined) {
+          //creo nuovo venditore in arrayRisultato 'salesmans'
+          salesmans.push({ name: sale.salesman, earnings: sale.amount });
+        } else {
+          //Caso B: venditore TROVATO in array risultato 'salesmans'
+          salesmans[salesmanIndex].earnings += sale.amount;
+        }
+        //restituisco l'array risultato che entra nella prossima iterazione
+        //di reduce e diventa il valore finale restuito da reduce (quindi dell'intera
+        //funzione) arrivati all'ultima vendita
+        return salesmans;
+    },[]);
+
+  }
+
+  //FUNZIONI GENERICA RICERCA E CONTROLLO IN OGGETTO
+
+  function getIndexOf(value, key, arrOfObjects) {
+      for (var i = 0; i < arrOfObjects.length; i++) {
+        if (arrOfObjects[i][key] === value) {
+          return i;
+        }
+      }
+    return undefined;
+  }
+
+  function contains(value, key, arr) {
+    return arr.some(function (object, index, array) {
+      return object[key] === value;
+    });
+  }
 
 });
-
-/*
-//CHARTS EXAMPLES
-
-// LineChart
-
-var myLineChart = new Chart(ctx, {
-    type: 'line',
-    data: data,
-    options: options
-});
-
-// For a pie chart
-var myPieChart = new Chart(ctx,{
-    type: 'pie',
-    data: data,
-    options: options
-});
-
-// And for a doughnut chart
-var myDoughnutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: data,
-    options: options
-});
-*/
