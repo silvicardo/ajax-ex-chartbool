@@ -29,15 +29,6 @@ Extra large ≥1200px   .col-xl- Max container width 1140px
   font-family: 'Montserrat';
 }
 
-#main-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: lightcoral;
-}
-
 /************************************************/
 /************* OGGETTI RICORRENTI ***************/
 /************************************************/

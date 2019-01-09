@@ -268,7 +268,52 @@ $(document).ready(function () {
 
   //creazione charts
 
+  var monthCanvas = $('#byMonth');
 
+  var earns =  earningsPerMonth.map(function (month) {
+    return month.earnings;
+  });
+
+  var monthsLabels = earningsPerMonth.map(function (month) {
+    return month.name;
+  });
+
+  var myLineChart = new Chart(monthCanvas,{type:'line',
+                                            data:{
+                                              labels: monthsLabels,
+                                              datasets:[{
+                                                label: 'Sales per month',
+                                                data: earns,
+                                                fill: true,
+                                                borderColor: 'rgb(0,128,128)',
+                                                backgroundColor: 'rgb(0,255,255)',
+                                                lineTension: 0.5}]
+                                                },
+                                              options:{ }
+                                          });
+
+
+  var salesmanCanvas = $('#bySalesman');
+
+  var salesmanLabels = salesmanWithPercentage.map(function (salesman) {
+    return salesman.name;
+  });
+
+  var salesmanPercentage = salesmanWithPercentage.map(function (salesman) {
+    return salesman.percentage;
+  });
+
+  var myDoughnutChart = new Chart(salesmanCanvas, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                label: 'Sales per Salesman',
+                data: salesmanPercentage,
+                backgroundColor:['rgb(0,128,0)','rgb(255,0,0)','rgb(255,255,0)','rgb(238,130,238']
+            }],
+            labels: salesmanLabels
+        }
+    });
 
   /**********************************/
   /*************FUNZIONI*************/
@@ -286,23 +331,26 @@ $(document).ready(function () {
   // vendite totali della nostra azienda per mese
 
   function getEarningsPerMonthFrom(sales) {
-    //prepariamo un array di oggetti mesi
+    //prepariamo un array di oggetti mesi...
     var months = [
-      { nome: 'Gennaio', nr: '01', earnings: 0 },
-      { nome: 'Febbraio', nr: '02', earnings: 0 },
-      { nome: 'Marzo', nr: '03', earnings: 0 },
-      { nome: 'Aprile', nr: '04', earnings: 0 },
-      { nome: 'Maggio', nr: '05', earnings: 0 },
-      { nome: 'Giugno', nr: '06', earnings: 0 },
-      { nome: 'Luglio', nr: '07', earnings: 0 },
-      { nome: 'Agosto', nr: '08', earnings: 0 },
-      { nome: 'Settembre', nr: '09', earnings: 0 },
-      { nome: 'Ottobre', nr: '10', earnings: 0 },
-      { nome: 'Novembre', nr: '11', earnings: 0 },
-      { nome: 'Dicembre', nr: '12', earnings: 0 }
+      { name: 'Gennaio', nr: '01', earnings: 0 },
+      { name: 'Febbraio', nr: '02', earnings: 0 },
+      { name: 'Marzo', nr: '03', earnings: 0 },
+      { name: 'Aprile', nr: '04', earnings: 0 },
+      { name: 'Maggio', nr: '05', earnings: 0 },
+      { name: 'Giugno', nr: '06', earnings: 0 },
+      { name: 'Luglio', nr: '07', earnings: 0 },
+      { name: 'Agosto', nr: '08', earnings: 0 },
+      { name: 'Settembre', nr: '09', earnings: 0 },
+      { name: 'Ottobre', nr: '10', earnings: 0 },
+      { name: 'Novembre', nr: '11', earnings: 0 },
+      { name: 'Dicembre', nr: '12', earnings: 0 }
     ];
 
-    //sarà l'accumulatore di reduce
+    //sarà l'accumulatore di reduce..
+    //la funzione restituirà un array mesi
+    //aggiornato per ogni vendita
+    //nella sua proprietà earnings
     return sales.reduce(function (months, sale) {
       var monthForThisSale = (sale.date.split('/'))[1] + '';
       var monthIndex = getIndexOf(monthForThisSale, 'nr',months);
