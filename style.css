@@ -1,0 +1,49 @@
+
+/**********************************************/
+/**********************************************/
+/****** PROGETTO: ChartBool - style.css *******/
+/**********************************************/
+/**********************************************/
+
+/********************************/
+/* BOOTSTRAP 4 GRID BREAKPOINTS */
+/********************************/
+
+/*
+Extra small <576px    .col-     Max container width AUTO
+Small ≥576px          .col-sm- Max container width 540px
+Medium ≥768px         .col-md- Max container width 720px
+Large ≥992px          .col-lg- Max container width 960px
+Extra large ≥1200px   .col-xl- Max container width 1140px
+*/
+
+/**********************************************/
+/************* REGOLE GENERALI ****************/
+/**********************************************/
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: 'Montserrat';
+}
+
+#main-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: lightcoral;
+}
+
+/************************************************/
+/************* OGGETTI RICORRENTI ***************/
+/************************************************/
+
+
+
+/**********************************************/
+/************* SEZIONI DOCUMENTO *************/
+/**********************************************/
