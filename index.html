@@ -13,6 +13,18 @@
   <div id="main-container" class="bg-secondary h-100">
 
     <h1 class="text-center text-uppercase text-white font-weight-bold bg-primary py-5">Sales Panel</h1>
+
+    <div class="add_sale d-none text-center p-5">
+      <h2 class="text-white mb-3">Aggiungi una vendita</h2>
+      <select name="" id="salesmanSelect">
+        <!-- Handlebars Script (MONTH SELECT OPTIONS) -->
+      </select>
+      <select class="mx-3" name="" id="monthSelect">
+        <!--Handlebars Script (SALESMAN SELECT OPTIONS)  -->
+        </option>
+      </select>
+      <button id="addSaleBtn" class="btn btn-primary"type="button" name="button">Conferma Vendita</button>
+    </div>
     <div class="container-fluid pt-5">
       <div class="row d-flex justify-content-around p-5 p-lg-0">
         <div class="col-lg-5 bg-white rounded shadow-lg p-5 mb-5 mb-lg-0">
@@ -29,6 +41,16 @@
 
   </div>
 
+  <!-- HANDLEBARS SCRIPTS -Inizio -->
+    <!-- MONTH SELECT OPTIONS -->
+    <script id="monthTemplate" type="text/x-handlebars-template">
+      {{{ monthOptions }}}
+    </script>
+    <!-- SALESMAN SELECT OPTIONS -->
+    <script id="salesmanTemplate" type="text/x-handlebars-template">
+      {{{ salesmanOptions}}}
+    </script>
+  <!-- HANDLEBARS SCRIPTS - Fine -->
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <!-- Bootstrap -->

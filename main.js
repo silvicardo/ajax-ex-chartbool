@@ -27,6 +27,16 @@ $(document).ready(function () {
 
     var salesmanWithPercentage = getEarningsPercentageFor(salesmans, totalEarnings);
 
+    //creazione Selects con Handlebars
+
+    fill('#monthSelect', '#monthTemplate', 'monthOptions', earningsPerMonth.map(function(monthObj) {
+      return monthObj.name;
+    }));
+
+    fill('#salesmanSelect', '#salesmanTemplate', 'salesmanOptions', salesmans.map(function(salesmanObj){
+      return salesmanObj.name;
+    }))
+
     //CREAZIONE CHARTS
     var monthCanvas = $('#byMonth');
     var salesmanCanvas = $('#bySalesman');
@@ -75,8 +85,13 @@ $(document).ready(function () {
                                                       }
                                                     });
 
+    toggle(['d-none', 'd-block'], $('.add_sale'));
+
   });//chiusura callback success della chiamata GET + chiusura chiamata
 
+  $('#addSaleBtn').click(function () {
+    
+  });
   /**********************************/
   /*************FUNZIONI*************/
   /**********************************/
@@ -177,6 +192,29 @@ $(document).ready(function () {
     return arr.some(function (object, index, array) {
       return object[key] === value;
     });
+  }
+
+  //GESTIONE INTERFACCIA
+
+  function toggle(classes, element) {
+    classes.forEach(function (thisClass) {
+      element.toggleClass(thisClass);
+    });
+  }
+
+  function fill(selectSelector, templateSelector, templateKey, dataArray) {
+    $(selectSelector).html('');
+    var htmlTemplate = $(templateSelector).html();
+    var template = Handlebars.compile(htmlTemplate);
+    var data = {};
+    data[templateKey] = '';
+    dataArray.forEach(function (value) {
+      data[templateKey] += '<option value="' + value +'">' + value + '</option>' ;
+    });
+
+    var htmlRisultato = template(data);
+
+    $(selectSelector).append(htmlRisultato);
   }
 
 });
