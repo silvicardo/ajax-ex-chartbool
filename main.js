@@ -14,13 +14,38 @@ $(document).ready(function () {
 
   var baseUrl = 'http://157.230.17.132:4016/sales';
 
-  $.get(baseUrl, function(apiData) {
+  moment.locale('it');
 
-    // rimuovo ultima istanza errore
-    var apiResponse = apiData.slice(0, -1);
+  $.get(baseUrl, function (apiResponse) {
 
+    updatePanelFrom(apiResponse);
+
+  });//chiusura callback success della chiamata GET + chiusura chiamata
+
+  $('#addSaleBtn').click(function () {
+
+    var randomDateInMonth = randomDateIn($('#monthSelect').val(), '2017');
+    var amount = parseInt($('#amountInput').val());
+
+    var newSaleObj =  {
+                      salesman: $('#salesmanSelect').val(),
+                      amount: amount,
+                      date: randomDateInMonth,
+                    };
+
+    $.post(baseUrl, newSaleObj, function (response) {
+      toggle(['d-none', 'd-block'], $('.add_sale'));
+      $.get(baseUrl, function(apiData) {
+        updatePanelFrom(apiData);
+      });//chiusura callback success della chiamata GET + chiusura chiamata
+    });
+  });
+  /**********************************/
+  /*************FUNZIONI*************/
+  /**********************************/
+
+  function updatePanelFrom(apiResponse) {
     var totalEarnings = getTotalEarningsFrom(apiResponse);
-
     var earningsPerMonth = getEarningsPerMonthFrom(apiResponse);
 
     var salesmans = getEarningsPerSellerFrom(apiResponse);
@@ -29,13 +54,13 @@ $(document).ready(function () {
 
     //creazione Selects con Handlebars
 
-    fill('#monthSelect', '#monthTemplate', 'monthOptions', earningsPerMonth.map(function(monthObj) {
+    fill('#monthSelect', '#monthTemplate', 'monthOptions', earningsPerMonth.map(function (monthObj) {
       return monthObj.name;
     }));
 
-    fill('#salesmanSelect', '#salesmanTemplate', 'salesmanOptions', salesmans.map(function(salesmanObj){
+    fill('#salesmanSelect', '#salesmanTemplate', 'salesmanOptions', salesmans.map(function (salesmanObj) {
       return salesmanObj.name;
-    }))
+    }));
 
     //CREAZIONE CHARTS
     var monthCanvas = $('#byMonth');
@@ -87,20 +112,14 @@ $(document).ready(function () {
 
     toggle(['d-none', 'd-block'], $('.add_sale'));
 
-  });//chiusura callback success della chiamata GET + chiusura chiamata
-
-  $('#addSaleBtn').click(function () {
-    
-  });
-  /**********************************/
-  /*************FUNZIONI*************/
-  /**********************************/
+  }
 
   // vendite totali della nostra azienda
 
   function getTotalEarningsFrom(sales) {
     return sales.reduce(function(totalAmount, sale) {
-        totalAmount += sale.amount;
+      var saleAmount = parseInt(sale.amount);
+        totalAmount += saleAmount;
         return totalAmount;
     },0);
   }
@@ -121,7 +140,7 @@ $(document).ready(function () {
       { name: 'Settembre', nr: '09', earnings: 0 },
       { name: 'Ottobre', nr: '10', earnings: 0 },
       { name: 'Novembre', nr: '11', earnings: 0 },
-      { name: 'Dicembre', nr: '12', earnings: 0 }
+      { name: 'Dicembre', nr: '12', earnings: 0 },
     ];
 
     //sarà l'accumulatore di reduce..
@@ -130,8 +149,9 @@ $(document).ready(function () {
     //nella sua proprietà earnings
     return sales.reduce(function (months, sale) {
       var monthForThisSale = (sale.date.split('/'))[1] + '';
-      var monthIndex = getIndexOf(monthForThisSale, 'nr',months);
-      months[monthIndex].earnings += sale.amount;
+      var monthIndex = getIndexOf(monthForThisSale, 'nr', months);
+      var saleAmount = parseInt(sale.amount);
+      months[monthIndex].earnings += saleAmount;
       return months;
     }, months);
   }
@@ -160,14 +180,14 @@ $(document).ready(function () {
       //se abbiamo un venditore nell'arrayRisultato 'salesmans'
       //otterremo l'indice altrimenti undefined
       var salesmanIndex = getIndexOf(sale.salesman,'name',salesmans);
-
+      var saleAmount = parseInt(sale.amount);
       //Caso A: venditore NON TROVATO in array risultato 'salesmans'
       if (salesmanIndex === undefined) {
           //creo nuovo venditore in arrayRisultato 'salesmans'
-          salesmans.push({ name: sale.salesman, earnings: sale.amount });
+          salesmans.push({ name: sale.salesman, earnings: saleAmount });
         } else {
           //Caso B: venditore TROVATO in array risultato 'salesmans'
-          salesmans[salesmanIndex].earnings += sale.amount;
+          salesmans[salesmanIndex].earnings += saleAmount;
         }
         //restituisco l'array risultato che entra nella prossima iterazione
         //di reduce e diventa il valore finale restuito da reduce (quindi dell'intera
@@ -215,6 +235,22 @@ $(document).ready(function () {
     var htmlRisultato = template(data);
 
     $(selectSelector).append(htmlRisultato);
+  }
+
+  //GESTIONE DATE
+
+  function randomDateIn(monthName, year) {
+
+    var selectedMonth = moment().set({'year': parseInt(year), 'month': monthName});
+    var daysInMonth = selectedMonth.daysInMonth();
+    var monthNumber = selectedMonth.format('MM');
+    var randomDay = function randomDay(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }(1, daysInMonth);
+
+    var randomDateInMonth = randomDay + '/' + monthNumber + '/' + year;
+
+    return randomDateInMonth;
   }
 
 });
