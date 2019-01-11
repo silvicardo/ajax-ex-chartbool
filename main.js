@@ -16,11 +16,11 @@ $(document).ready(function () {
 
   moment.locale('it');
 
-  $.get(baseUrl, function (apiResponse) {
+  $.get(baseUrl, function (apiSales) {
 
-    updatePanelFrom(apiResponse);
+   updatePanelWith(apiSales);
 
-  });//chiusura callback success della chiamata GET + chiusura chiamata
+  });
 
   $('#addSaleBtn').click(function () {
 
@@ -35,22 +35,46 @@ $(document).ready(function () {
 
     $.post(baseUrl, newSaleObj, function (response) {
       toggle(['d-none', 'd-block'], $('.add_sale'));
-      $.get(baseUrl, function(apiData) {
-        updatePanelFrom(apiData);
-      });//chiusura callback success della chiamata GET + chiusura chiamata
+      $.get(baseUrl, function(apiSales) {
+        updatePanelWith(apiSales);
+      });
     });
   });
+
   /**********************************/
   /*************FUNZIONI*************/
   /**********************************/
 
-  function updatePanelFrom(apiResponse) {
-    var totalEarnings = getTotalEarningsFrom(apiResponse);
-    var earningsPerMonth = getEarningsPerMonthFrom(apiResponse);
+  function updatePanelWith(apiResponse) {
 
-    var salesmans = getEarningsPerSellerFrom(apiResponse);
+    apiResponse.forEach(function (sale) {
+      sale.amount = parseInt(sale.amount);
+    });
+
+    var totalEarnings = getTotalEarningsFrom(apiResponse);
+
+    var salesmans = createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf('salesman', apiResponse, undefined, function(obj, inputArrayObj, fullInputArray, isNewObj) {
+      //Per ogni istanza dell'array origine(apiResponse) in base che sia un nuovo Oggetto per l'array finel eseguo
+      obj.earnings = (isNewObj) ? inputArrayObj.amount : (inputArrayObj.amount + obj.earnings);
+      return obj;
+    });
 
     var salesmanWithPercentage = getEarningsPercentageFor(salesmans, totalEarnings);
+    console.log(salesmanWithPercentage);
+
+    var earningsPerMonth = createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf('date', apiResponse, function (dateValue) {
+      // eseguo su ogni valore alla chiave 'date' questa modifica
+      return dateValue.split('/')[1] + '';
+    }, function (obj, inputArrayObj, fullInputArray, isNewObj) {//poi
+      //Per ogni istanza dell'array origine(apiResponse) in base che sia un nuovo Oggetto per l'array finel eseguo
+      obj.earnings = (isNewObj) ? inputArrayObj.amount : (inputArrayObj.amount + obj.earnings);
+      obj.name = (isNewObj) ? moment.months(parseInt(obj.date) - 1) :  obj.name;
+      return obj;
+    }).sort(function (a, b) {//I mesi sarebbero sparsi a questo punto, uso sort per ordinarli per il numero di mese
+      return a.date - b.date;
+    });
+
+    console.log(earningsPerMonth);
 
     //creazione Selects con Handlebars
 
@@ -59,7 +83,7 @@ $(document).ready(function () {
     }));
 
     fill('#salesmanSelect', '#salesmanTemplate', 'salesmanOptions', salesmans.map(function (salesmanObj) {
-      return salesmanObj.name;
+      return salesmanObj.salesman;
     }));
 
     //CREAZIONE CHARTS
@@ -118,42 +142,9 @@ $(document).ready(function () {
 
   function getTotalEarningsFrom(sales) {
     return sales.reduce(function(totalAmount, sale) {
-      var saleAmount = parseInt(sale.amount);
-        totalAmount += saleAmount;
+        totalAmount += sale.amount;
         return totalAmount;
     },0);
-  }
-
-  // vendite totali della nostra azienda per mese
-
-  function getEarningsPerMonthFrom(sales) {
-    //prepariamo un array di oggetti mesi...
-    var months = [
-      { name: 'Gennaio', nr: '01', earnings: 0 },
-      { name: 'Febbraio', nr: '02', earnings: 0 },
-      { name: 'Marzo', nr: '03', earnings: 0 },
-      { name: 'Aprile', nr: '04', earnings: 0 },
-      { name: 'Maggio', nr: '05', earnings: 0 },
-      { name: 'Giugno', nr: '06', earnings: 0 },
-      { name: 'Luglio', nr: '07', earnings: 0 },
-      { name: 'Agosto', nr: '08', earnings: 0 },
-      { name: 'Settembre', nr: '09', earnings: 0 },
-      { name: 'Ottobre', nr: '10', earnings: 0 },
-      { name: 'Novembre', nr: '11', earnings: 0 },
-      { name: 'Dicembre', nr: '12', earnings: 0 },
-    ];
-
-    //sarà l'accumulatore di reduce..
-    //la funzione restituirà un array mesi
-    //aggiornato per ogni vendita
-    //nella sua proprietà earnings
-    return sales.reduce(function (months, sale) {
-      var monthForThisSale = (sale.date.split('/'))[1] + '';
-      var monthIndex = getIndexOf(monthForThisSale, 'nr', months);
-      var saleAmount = parseInt(sale.amount);
-      months[monthIndex].earnings += saleAmount;
-      return months;
-    }, months);
   }
 
   // il contributo di ogni venditore per l’anno 2017.
@@ -166,52 +157,14 @@ $(document).ready(function () {
 
     sellersArray.forEach(function (seller, sellerIndex, sellers) {
 
-      var percentage = parseInt((seller.earnings / totalEarnings) * 100);
-      salesmansCopy.push({name: seller.name, earnings: seller.earnings, percentage: percentage }) ;
+      var percentage = (seller.earnings / totalEarnings) * 100;
+      salesmansCopy.push({ name: seller.salesman,
+                           earnings: seller.earnings,
+                           percentage: parseInt(percentage)
+                         });
     });
 
     return salesmansCopy;
-  }
-
-  function getEarningsPerSellerFrom(sales) {
-    //ritorno il risultato di...
-    return sales.reduce(function (salesmans, sale) {
-      //per ogni vendita
-      //se abbiamo un venditore nell'arrayRisultato 'salesmans'
-      //otterremo l'indice altrimenti undefined
-      var salesmanIndex = getIndexOf(sale.salesman,'name',salesmans);
-      var saleAmount = parseInt(sale.amount);
-      //Caso A: venditore NON TROVATO in array risultato 'salesmans'
-      if (salesmanIndex === undefined) {
-          //creo nuovo venditore in arrayRisultato 'salesmans'
-          salesmans.push({ name: sale.salesman, earnings: saleAmount });
-        } else {
-          //Caso B: venditore TROVATO in array risultato 'salesmans'
-          salesmans[salesmanIndex].earnings += saleAmount;
-        }
-        //restituisco l'array risultato che entra nella prossima iterazione
-        //di reduce e diventa il valore finale restuito da reduce (quindi dell'intera
-        //funzione) arrivati all'ultima vendita
-        return salesmans;
-    },[]);
-
-  }
-
-  //FUNZIONI GENERICA RICERCA E CONTROLLO IN OGGETTO
-
-  function getIndexOf(value, key, arrOfObjects) {
-      for (var i = 0; i < arrOfObjects.length; i++) {
-        if (arrOfObjects[i][key] === value) {
-          return i;
-        }
-      }
-    return undefined;
-  }
-
-  function contains(value, key, arr) {
-    return arr.some(function (object, index, array) {
-      return object[key] === value;
-    });
   }
 
   //GESTIONE INTERFACCIA
@@ -253,4 +206,65 @@ $(document).ready(function () {
     return randomDateInMonth;
   }
 
+  //FUNZIONI GENERICHE RICERCA E CONTROLLO IN OGGETTO
+
+  function getIndexOf(value, key, arrOfObjects) {
+      for (var i = 0; i < arrOfObjects.length; i++) {
+        if (arrOfObjects[i][key] === value) {
+          return i;
+        }
+      }
+    return undefined;
+  }
+
+  function contains(value, key, arrOfObjects) {
+    return arrOfObjects.some(function (object, index, array) {
+      return object[key] === value;
+    });
+  }
+
+  /*
+  Funzione per ciclare su un array secondo una chiave con la possibilità di manipolare il valore a quella chiave prima di
+  iniziare a lavorarlo:
+    -> cicla su ogni oggetto dell'array originale
+    -> da la possibilita di modificare(facoltativo) il valore a quella chiave tramite
+      funzione dedicata (valueHandlerBeforeSorting)( METTERE UNDEFINED SE NON LA SI USA)
+    -> genera un oggetto nuovo ad ogni valore diverso alla chiave (key) e lo mette in un arrayRisultato
+    -> controlla ad ogni istanza dell'array originale se nell'array risultato c'è alla chiave (key)
+      quello stesso valore, fornisce all'handler per ogni iterazione un booleano(isNewObj) per poter gestire in un unica
+      funzione di manipolazione entrambe le casistiche(objHandlerForEachIteration)
+    -> objHandlerForEachIteration deve ritornare sempre il suo primo parametro
+    -> objHandlerForEachIteration e  valueHandlerBeforeSorting godono
+      di outerVarForHandler (di base undefinded) a cui possono avere accesso per
+      tutta la durata del ciclo(ultimo parametro facoltativo)
+    ->restituisce l'array risultato lavorato secondo objHandlerForEachIteration
+  */
+  function createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf(key, arrayOfObjects, valueHandlerBeforeSorting,  objHandlerForEachIteration) {
+    console.log(objHandlerForEachIteration);
+    var finaleArrOfObjects = [];
+    var id = 0;
+    var outerVarForHandler = undefined;//You can check the value to keep track of things in the main function
+    var isNewObj = false;
+
+    for (var i = 0; i < arrayOfObjects.length; i++) {
+      var currentObj = arrayOfObjects[i];
+      currentObj[key] = (valueHandlerBeforeSorting !== undefined) ? valueHandlerBeforeSorting(currentObj[key]) : currentObj[key];
+
+      var indexInFinalArrOfObjects = getIndexOf(currentObj[key], key, finaleArrOfObjects);
+
+      if (indexInFinalArrOfObjects  === undefined)  {
+        var isNewObj = true;
+        var newObj = {};
+        newObj[key] = currentObj[key];
+        newObj.id = id += 1;
+        finaleArrOfObjects.push((objHandlerForEachIteration !== undefined) ? objHandlerForEachIteration(newObj,currentObj, arrayOfObjects, isNewObj, outerVarForHandler) : newObj);
+
+      } else {
+        var isNewObj = false;
+        finaleArrOfObjects[indexInFinalArrOfObjects] = objHandlerForEachIteration(finaleArrOfObjects[indexInFinalArrOfObjects], currentObj, arrayOfObjects, isNewObj, outerVarForHandler);
+      }
+
+    }
+    return finaleArrOfObjects;
+  }
 });
