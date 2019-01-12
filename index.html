@@ -25,6 +25,7 @@
       <input id="amountInput" class="mr-3 rounded pl-2" type="text" name="" value="" placeholder="sale amount">
       <button id="addSaleBtn" class="btn btn-primary"type="button" name="button">Conferma Vendita</button>
     </div>
+
     <div class="container-fluid pt-5 mb-0 mb-lg-5">
       <div class="row d-flex justify-content-around p-5 p-lg-0">
         <div class="col-lg-5 bg-white rounded shadow-lg p-5 mb-5 mb-lg-0">
@@ -37,6 +38,7 @@
         </div>
       </div>
     </div>
+
     <div class="container-fluid mb-5">
       <div class="row d-flex justify-content-around p-5 p-lg-0">
         <div class="col-lg-5 bg-white rounded shadow-lg p-5 mb-5 mb-lg-0">
@@ -44,11 +46,11 @@
           <canvas id="byQuarter"></canvas>
         </div>
 
+      </div>
+
     </div>
 
-  </div>
-
-  <!-- HANDLEBARS SCRIPTS -Inizio -->
+    <!-- HANDLEBARS SCRIPTS -Inizio -->
     <!-- MONTH SELECT OPTIONS -->
     <script id="monthTemplate" type="text/x-handlebars-template">
       {{{ monthOptions }}}
@@ -57,19 +59,33 @@
     <script id="salesmanTemplate" type="text/x-handlebars-template">
       {{{ salesmanOptions}}}
     </script>
-  <!-- HANDLEBARS SCRIPTS - Fine -->
-  <!-- Moment.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js" charset="utf-8"></script>
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <!-- Bootstrap -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-  <!-- Handlebars -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js" charset="utf-8"></script>
-  <!-- Chart JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js" charset="utf-8"></script>
-  <!-- Main.js -->
-  <script src="main.js" charset="utf-8"></script>
+    <!-- HANDLEBARS SCRIPTS - Fine -->
+
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js" charset="utf-8"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <!-- Handlebars -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js" charset="utf-8"></script>
+
+    <!-- Chart JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js" charset="utf-8"></script>
+
+    <!-- objectFunctions.js -->
+    <script src="objectsFunctions.js" charset="utf-8"></script>
+
+    <!-- salesStatsManager.js -->
+    <script src="salesStatsManager.js" charset="utf-8"></script>
+
+    <!-- Main.js -->
+    <script src="main.js" charset="utf-8"></script>
+
   </body>
+
 </html>
