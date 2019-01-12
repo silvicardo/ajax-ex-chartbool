@@ -16,7 +16,7 @@
 
     <div class="add_sale d-none text-center p-5">
       <h2 class="text-white mb-3">Aggiungi una vendita</h2>
-      <select name="" id="salesmanSelect">
+      <select name="" id="salesmenSelect">
         <!-- Handlebars Script (MONTH SELECT OPTIONS) -->
       </select>
       <select class="mx-3" name="" id="monthSelect">
@@ -25,19 +25,26 @@
       <input id="amountInput" class="mr-3 rounded pl-2" type="text" name="" value="" placeholder="sale amount">
       <button id="addSaleBtn" class="btn btn-primary"type="button" name="button">Conferma Vendita</button>
     </div>
-    <div class="container-fluid pt-5">
+    <div class="container-fluid pt-5 mb-0 mb-lg-5">
       <div class="row d-flex justify-content-around p-5 p-lg-0">
         <div class="col-lg-5 bg-white rounded shadow-lg p-5 mb-5 mb-lg-0">
-          <h2 class="text-uppercase text-center my-3">Sales per Month</h2>
+          <h2 class="text-uppercase text-center my-3">Vendite per mese</h2>
           <canvas id="byMonth"></canvas>
         </div>
         <div class="col-lg-5 bg-white rounded shadow-lg p-5">
-          <h2 class="text-uppercase text-center my-3">Sales per Salesman</h2>
+          <h2 class="text-uppercase text-center my-3">Vendite per venditore</h2>
           <canvas id="bySalesman" ></canvas>
         </div>
       </div>
     </div>
-    <canvas id="byMonth" class="w-50 h-50"></canvas>
+    <div class="container-fluid mb-5">
+      <div class="row d-flex justify-content-around p-5 p-lg-0">
+        <div class="col-lg-5 bg-white rounded shadow-lg p-5 mb-5 mb-lg-0">
+          <h2 class="text-uppercase text-center my-3">Vendite per Quarto</h2>
+          <canvas id="byQuarter"></canvas>
+        </div>
+
+    </div>
 
   </div>
 

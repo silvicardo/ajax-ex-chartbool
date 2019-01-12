@@ -16,6 +16,7 @@ $(document).ready(function () {
 
   moment.locale('it');
 
+
   $.get(baseUrl, function (apiSales) {
 
    updatePanelWith(apiSales);
@@ -28,7 +29,7 @@ $(document).ready(function () {
     var amount = parseInt($('#amountInput').val());
 
     var newSaleObj =  {
-                      salesman: $('#salesmanSelect').val(),
+                      salesman: $('#salesmenSelect').val(),
                       amount: amount,
                       date: randomDateInMonth,
                     };
@@ -53,13 +54,13 @@ $(document).ready(function () {
 
     var totalEarnings = getTotalEarningsFrom(apiResponse);
 
-    var salesmans = createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf('salesman', apiResponse, undefined, function(obj, inputArrayObj, fullInputArray, isNewObj) {
+    var salesmen = createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf('salesman', apiResponse, undefined, function(obj, inputArrayObj, fullInputArray, isNewObj) {
       //Per ogni istanza dell'array origine(apiResponse) in base che sia un nuovo Oggetto per l'array finel eseguo
       obj.earnings = (isNewObj) ? inputArrayObj.amount : (inputArrayObj.amount + obj.earnings);
       return obj;
     });
 
-    var salesmanWithPercentage = getEarningsPercentageFor(salesmans, totalEarnings);
+    var salesmanWithPercentage = getEarningsPercentageFor(salesmen, totalEarnings);
     console.log(salesmanWithPercentage);
 
     var earningsPerMonth = createNewArrayOfObjectsSortingInputArrayForDifferentValuesOf('date', apiResponse, function (dateValue) {
@@ -69,6 +70,7 @@ $(document).ready(function () {
       //Per ogni istanza dell'array origine(apiResponse) in base che sia un nuovo Oggetto per l'array finel eseguo
       obj.earnings = (isNewObj) ? inputArrayObj.amount : (inputArrayObj.amount + obj.earnings);
       obj.name = (isNewObj) ? moment.months(parseInt(obj.date) - 1) :  obj.name;
+      obj.id = parseInt(obj.date);
       return obj;
     }).sort(function (a, b) {//I mesi sarebbero sparsi a questo punto, uso sort per ordinarli per il numero di mese
       return a.date - b.date;
@@ -76,19 +78,24 @@ $(document).ready(function () {
 
     console.log(earningsPerMonth);
 
+
+    var earningsPerQuarter = splitToQuarters(earningsPerMonth);
+    console.log(earningsPerQuarter);
+
     //creazione Selects con Handlebars
 
     fill('#monthSelect', '#monthTemplate', 'monthOptions', earningsPerMonth.map(function (monthObj) {
       return monthObj.name;
     }));
 
-    fill('#salesmanSelect', '#salesmanTemplate', 'salesmanOptions', salesmans.map(function (salesmanObj) {
+    fill('#salesmenSelect', '#salesmanTemplate', 'salesmanOptions', salesmen.map(function (salesmanObj) {
       return salesmanObj.salesman;
     }));
 
     //CREAZIONE CHARTS
     var monthCanvas = $('#byMonth');
     var salesmanCanvas = $('#bySalesman');
+    var quarterCanvas =$('#byQuarter');
 
     //CHARTS --> MESE
 
@@ -133,6 +140,22 @@ $(document).ready(function () {
                                                         labels: salesmanLabels
                                                       }
                                                     });
+//CHARTS --> QUARTER
+
+var quarterEarnings = earningsPerQuarter.map(function (quarter) {
+  return quarter.earnings;
+});
+
+var quarterIds = earningsPerQuarter.map(function (quarter) {
+  return quarter.number + '';
+});
+
+var backgroundColor = ['rgba(255, 99, 132, 0.2)','rgba(255, 159, 64, 0.2)','rgba(255, 205, 86, 0.2)','rgba(75, 192, 192, 0.2)','rgba(54, 162, 235, 0.2)','rgba(153, 102, 255, 0.2)','rgba(201, 203, 207, 0.2)'];
+var borderColor = ['rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)','rgb(75, 192, 192)','rgb(54, 162, 235)','rgb(153, 102, 255)','rgb(201, 203, 207)'];
+
+var options = {scales:{yAxes:[{ticks:{beginAtZero:true}}]}};
+
+var myBarChart = new Chart(quarterCanvas , { type:'bar', data:{'labels':quarterIds,'datasets':[{label:'Quarters','data':quarterEarnings, fill:false, backgroundColor: backgroundColor,'borderColor': borderColor,borderWidth:1}]},'options': options});
 
     toggle(['d-none', 'd-block'], $('.add_sale'));
 
@@ -153,18 +176,18 @@ $(document).ready(function () {
 
   function getEarningsPercentageFor(sellersArray, totalEarnings) {
 
-    var salesmansCopy = [];
+    var salesmenCopy = [];
 
     sellersArray.forEach(function (seller, sellerIndex, sellers) {
 
       var percentage = (seller.earnings / totalEarnings) * 100;
-      salesmansCopy.push({ name: seller.salesman,
+      salesmenCopy.push({ name: seller.salesman,
                            earnings: seller.earnings,
                            percentage: parseInt(percentage)
                          });
     });
 
-    return salesmansCopy;
+    return salesmenCopy;
   }
 
   //GESTIONE INTERFACCIA
@@ -267,4 +290,24 @@ $(document).ready(function () {
     }
     return finaleArrOfObjects;
   }
+
+  function splitToQuarters(yearEarningsByMonth) {
+
+    return yearEarningsByMonth.reduceRight(function (quartersArray, month, monthIndex, yearArray) {
+
+          var isNewQuarter = (month.id % 3 === 0);
+
+          if (isNewQuarter) {
+            quartersArray.push({number : month.id / 3,
+                                earnings : month.earnings });
+          } else {
+            var quarterIndex = quartersArray.length - 1;
+            var currentQuarter = quartersArray[quarterIndex];
+            currentQuarter.earnings += month.earnings;
+          }
+
+        return quartersArray;
+    }, []).reverse();
+  }
+
 });
